@@ -14,7 +14,7 @@ This Python script interacts with the Solana blockchain to fetch and process tok
 1. **Clone the repository or download the script**.
 
     ```bash
-   git clone 
+   git clone https://github.com/blockative/sol_tracker.git
     ```
 
 
@@ -46,7 +46,7 @@ Locate the following lines:
 To execute the script, navigate to the directory where it is located and run:
 ```bash
 
-python3 wacker.py
+python3 tracker.py
 ```
 
 ## Output
