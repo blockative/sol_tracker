@@ -35,7 +35,7 @@ Open the script in your favorite text editor.
 Locate the following lines:
 
  ```javascript
-    TOKEN_ADDRESS = 'Faf89929Ni9fbg4gmVZTca7eW6NFg877Jqn6MizT3Gvw'  # SoBULL token address (mint address)
+    TOKEN_ADDRESS = 'Faf89929Ni9fbg4gmVZTca7eW6NFg877Jqn6MizT3Gvw'  # WOLF token address (mint address)
     WALLET_ADDRESS = '291Lm7qrEJVUHmmmSSHhdiYpMHEXR76iaqX4afSFLnPH'  # Replace with your wallet address
 ```
 **Replace `TOKEN_ADDRESS` with the mint address of the token you want to track.**
