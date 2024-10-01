@@ -9,7 +9,7 @@ SOLANA_API_URL = "https://api.mainnet-beta.solana.com"
 # TOKEN_ADDRESS = '27pGA2TokxUaDT3F784TNHEoE93dUmbc2bSewzUZGExw'  # SoBULL token address (mint address)
 # WALLET_ADDRESS = 'ERS5uRvj9QZ2G8YPVJGm2v3MEbujdX55omYM7rhGMV3j'  # Replace with the wallet address you want to check
 
-TOKEN_ADDRESS = 'Faf89929Ni9fbg4gmVZTca7eW6NFg877Jqn6MizT3Gvw'  # SoBULL token address (mint address)
+TOKEN_ADDRESS = 'Faf89929Ni9fbg4gmVZTca7eW6NFg877Jqn6MizT3Gvw'  # WOLF token address (mint address)
 WALLET_ADDRESS = '291Lm7qrEJVUHmmmSSHhdiYpMHEXR76iaqX4afSFLnPH'
 
 def get_transactions_for_wallet(wallet_address):
