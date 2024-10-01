@@ -1,4 +1,4 @@
-# SolTracker
+# Sol Tracker
 
 ## Overview
 
