@@ -6,7 +6,7 @@ from datetime import datetime
 # Constants
 SOLANA_API_URL = "https://api.mainnet-beta.solana.com"
 TOKEN_ADDRESS = 'Faf89929Ni9fbg4gmVZTca7eW6NFg877Jqn6MizT3Gvw'  # WOLF token address (mint address)
-WALLET_ADDRESS = '291Lm7qrEJVUHmmmSSHhdiYpMHEXR76iaqX4afSFLnPH'
+WALLET_ADDRESS = '291Lm7qrEJVUHmmmSSHhdiYpMHEXR76iaqX4afSFLnPH' # Wallet Address
 
 def get_transactions_for_wallet(wallet_address, limit=150, before_signature=None):
    
