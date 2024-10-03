@@ -1,29 +1,33 @@
 import requests
-import json
 import csv
 import time
 from datetime import datetime
 
 # Constants
 SOLANA_API_URL = "https://api.mainnet-beta.solana.com"
-# TOKEN_ADDRESS = '27pGA2TokxUaDT3F784TNHEoE93dUmbc2bSewzUZGExw'  # SoBULL token address (mint address)
-# WALLET_ADDRESS = 'ERS5uRvj9QZ2G8YPVJGm2v3MEbujdX55omYM7rhGMV3j'  # Replace with the wallet address you want to check
-
 TOKEN_ADDRESS = 'Faf89929Ni9fbg4gmVZTca7eW6NFg877Jqn6MizT3Gvw'  # WOLF token address (mint address)
 WALLET_ADDRESS = '291Lm7qrEJVUHmmmSSHhdiYpMHEXR76iaqX4afSFLnPH'
 
-def get_transactions_for_wallet(wallet_address):
+def get_transactions_for_wallet(wallet_address, limit=150, before_signature=None):
+   
     payload = {
         "jsonrpc": "2.0",
         "id": 1,
         "method": "getSignaturesForAddress",
-        "params": [wallet_address, {"limit": 50}]
+        "params": [
+            wallet_address, 
+            {
+                "limit": limit,
+                "before": before_signature  # Fetch next batch using the before signature
+            }
+        ]
     }
     
     response = requests.post(SOLANA_API_URL, json=payload)
     return response.json().get('result', [])
 
 def get_transaction_details(signature, retries=5, delay=5):
+   
     payload = {
         "jsonrpc": "2.0",
         "id": 1,
@@ -100,7 +104,8 @@ def process_transaction(transaction_details):
                     'From': from_name,  # This should now be just the public key or name
                     'To': to_name,       # This should also be just the public key or name
                     'Amount (tokens)': token_amount_sent,  # Tokens sent in the transaction
-                    'Amount (SOL)': sol_amount_transferred  # SOL involved in the transaction
+                    'Amount (SOL)': sol_amount_transferred,  # SOL involved in the transaction
+                    'transaction_details': transaction_details['transaction']
                 })
     else:
         print("No token balances found in this transaction.")
@@ -110,77 +115,51 @@ def process_transaction(transaction_details):
 
 
 
-def save_to_csv(transfers):
-    with open('sobull_transfers.csv', mode='w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=['Time', 'Action', 'From', 'To', 'Amount (tokens)', 'Amount (SOL)'])
-        writer.writeheader()
-        for transfer in transfers:
-            # Ensure that From and To fields are not dictionaries but just strings
-            writer.writerow({
-                'Time': transfer['Time'],
-                'Action': transfer['Action'],
-                'From': transfer['From'],  # Should be just the public key now
-                'To': transfer['To'],       # Should also be just the public key now
-                'Amount (tokens)': transfer['Amount (tokens)'],
-                'Amount (SOL)': transfer['Amount (SOL)']
-            })
-
-def main():
-    transactions = get_transactions_for_wallet(WALLET_ADDRESS)
-    
-    all_transfers = []
-
-    for tx in transactions:
-        signature = tx['signature']
-        print(f"Processing transaction: {signature}")  # Debugging print
-        
-        transaction_details = get_transaction_details(signature)
-        
-        if not transaction_details:
-            print(f"No details found for transaction: {signature}")  # Debugging print
-            continue
-        
-        transfers = process_transaction(transaction_details)
-        
-        if not transfers:
-            print(f"No valid transfers found for transaction: {signature}")  # Debugging print
-        
-        all_transfers.extend(transfers)
-
-    save_to_csv(all_transfers)
-
-if __name__ == "__main__":
-    main()
 
 def save_to_csv(transfers):
-    with open('sobull_transfers.csv', mode='w', newline='') as file:
+   
+    with open('all_transfers.csv', mode='w', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=['Time', 'Action', 'From', 'To', 'Amount (tokens)', 'Amount (SOL)'])
         writer.writeheader()
+        
         for transfer in transfers:
-            writer.writerow(transfer)
+            # Remove 'transaction_details' from the dictionary before writing to the CSV
+            transfer_data = {k: v for k, v in transfer.items() if k != 'transaction_details'}
+            writer.writerow(transfer_data)
+
 
 def main():
-    transactions = get_transactions_for_wallet(WALLET_ADDRESS)
-    
     all_transfers = []
+    before_signature = None  # Initially no signature to start from the latest transaction
 
-    for tx in transactions:
-        signature = tx['signature']
-        print(f"Processing transaction: {signature}")  # Debugging print
+    while True:
+        # Fetch a batch of transactions, up to 50 at a time, using before_signature for pagination
+        transactions = get_transactions_for_wallet(WALLET_ADDRESS, limit=50, before_signature=before_signature)
         
-        transaction_details = get_transaction_details(signature)
-        
-        if not transaction_details:
-            print(f"No details found for transaction: {signature}")  # Debugging print
-            continue
-        
-        transfers = process_transaction(transaction_details)
-        
-        if not transfers:
-            print(f"No valid transfers found for transaction: {signature}")  # Debugging print
-        
-        all_transfers.extend(transfers)
+        if not transactions:
+            print("No more transactions found.")
+            break  # Exit loop when no more transactions are found
 
+        # Process each transaction
+        for tx in transactions:
+            signature = tx['signature']
+            print(f"Processing transaction: {signature}")  # Debugging print
+            
+            transaction_details = get_transaction_details(signature)
+            
+            if not transaction_details:
+                print(f"No details found for transaction: {signature}")  # Debugging print
+                continue
+            
+            transfers = process_transaction(transaction_details)
+            
+            if transfers:
+                all_transfers.extend(transfers)
+
+        # Update `before_signature` to fetch the next batch of transactions
+        before_signature = transactions[-1]['signature']  # Fetch transactions before this signature in the next loop
+
+    # Save all transfers to a CSV file
     save_to_csv(all_transfers)
 
 if __name__ == "__main__":
