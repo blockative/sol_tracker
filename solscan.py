@@ -3,10 +3,10 @@ import csv
 from datetime import datetime
 
 TOKEN_ADDRESS = 'Faf89929Ni9fbg4gmVZTca7eW6NFg877Jqn6MizT3Gvw'
-WALLET_ADDRESS = '291Lm7qrEJVUHmmmSSHhdiYpMHEXR76iaqX4afSFLnPH'
+WALLET_ADDRESS = '78JfM1SeSpP6g72BnKCyjf4z2FzywKzyUBzGNY1gwbJY'
 
 def adjust_amount(amount, decimals):
-    return amount / (10 ** decimals)
+    return int(amount) / (10 ** decimals)
 
 def getWsol(tx):
     url = f"https://api-v2.solscan.io/v2/transaction/overview?tx={tx}"
@@ -30,7 +30,6 @@ def getWsol(tx):
     }
 
     response = requests.get(url, headers=headers)
-
     # Check for successful response
     # print("response.status_code", response.status_code)
     if response.status_code == 200:
@@ -38,7 +37,7 @@ def getWsol(tx):
         # print(data)  # This will print
         # wsolvalues = data['data']['render_summary_main_actions'][0]['body']
         for render_summary_main_actions in data['data']['render_summary_main_actions']:
-            for t in render_summary_main_actions['body'][0]:
+            for t in render_summary_main_actions['title'][0]:
                 if 'token_amount' in t and t['token_amount']['token_address'] == 'So11111111111111111111111111111111111111112': #checking conditions
                     adjusted_amount = adjust_amount(t['token_amount']['number'], t['token_amount']['decimals'])
                     return adjusted_amount
@@ -78,7 +77,7 @@ def find_transfers(page):
     if response.status_code == 200:
         print("Request successful!")
         data = response.json()
-        csv_filename = 'solana_transactions.csv'
+        csv_filename = 'solana_transactions_new.csv'
         csv_headers = ['trans_id', 'block_time', 'activity_type', 'from_address', 'to_address', 'token_decimals', 'amount', 'flow', 'wsol']
 
         # Write data to CSV
@@ -110,4 +109,3 @@ def find_transfers(page):
 
 if __name__ == "__main__":
     find_transfers(1)
-
